@@ -11,7 +11,6 @@ using namespace std;
 
 void llenar_datos(ifstream& ff){
     vector<tuple<int, int>> coordenas;
-    //Aqui se pega el numero de punto en numero_puntos
     int numero_puntos;
     int coordenadaX;
     int coordenadaY;
@@ -21,7 +20,6 @@ void llenar_datos(ifstream& ff){
         ff >> idCiudad;
         ff >> coordenadaX;
         ff >> coordenadaY;
-        //Aqui se lee las coordenadas y se gardan en la tupla
         coordenas.emplace_back(coordenadaX, coordenadaY);
     }
 
