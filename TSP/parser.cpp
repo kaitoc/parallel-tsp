@@ -10,7 +10,7 @@
 using namespace std;
 
 void llenar_datos(ifstream& ff){
-    vector<tuple<int, int>> coordenas;
+    vector<tuple<int, int, int>> coordenas;
     int numero_puntos;
     int coordenadaX;
     int coordenadaY;
@@ -20,11 +20,11 @@ void llenar_datos(ifstream& ff){
         ff >> idCiudad;
         ff >> coordenadaX;
         ff >> coordenadaY;
-        coordenas.emplace_back(coordenadaX, coordenadaY);
+        coordenas.emplace_back(idCiudad, coordenadaX, coordenadaY);
     }
 
     for (int i = 0; i<coordenas.size(); i++){
-        cout << get<0>(coordenas[i]) << ", " << get<1>(coordenas[i]) << endl;
+        cout << get<0>(coordenas[i]) << ", " << get<1>(coordenas[i]) << ", " << get<2>(coordenas[i]) << endl;
     }
 }
 
