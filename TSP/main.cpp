@@ -1,6 +1,11 @@
 #include <iostream>
 #include <limits>
-#include <omp.h>
+//#include <omp.h>
+#include <iostream>
+#include <fstream>
+#include "parser.h"
+
+using namespace std;
 
 int reduce_row(int *tensor, int n) {
     int i{}, minimum = std::numeric_limits<int>::max();
@@ -44,7 +49,12 @@ int reduction(int **matrix, int n) {
     return sum_reduction_elements;
 }
 
-int main() {
+int main(int argc, char* argv[]) {
+
+    ifstream datafile {argv[1]};
+    llenar_datos(datafile);
+    datafile.close();
+/*
     int inf = std::numeric_limits<int>::max();
     int values[5][5] = {
             {inf, 20,  30,  10,  11},
@@ -62,5 +72,6 @@ int main() {
     }
 
     std::cout << reduction(matrix, 5) << std::endl;
+    */
     return 0;
 }
