@@ -51,7 +51,7 @@ int reduction(int **matrix, int n) {
 
 int main(int argc, char* argv[]) {
 
-    ifstream datafile {argv[1]}; /* first arg is filename */
+    ifstream datafile {argv[1]};
     llenar_datos(datafile);
     datafile.close();
 /*
