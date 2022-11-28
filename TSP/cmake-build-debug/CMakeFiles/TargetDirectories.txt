@@ -1,3 +1,0 @@
-/home/ceduardosq/Code/ParallelDistributedComputing/Project/parallel-tsp/TSP/cmake-build-debug/CMakeFiles/TSP.dir
-/home/ceduardosq/Code/ParallelDistributedComputing/Project/parallel-tsp/TSP/cmake-build-debug/CMakeFiles/edit_cache.dir
-/home/ceduardosq/Code/ParallelDistributedComputing/Project/parallel-tsp/TSP/cmake-build-debug/CMakeFiles/rebuild_cache.dir
