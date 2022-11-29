@@ -133,8 +133,12 @@ int tsp_recursive(int **g, int p_prev, int depth, int cost)
 	
 	priority_queue<pair<int, int>, vector<pair<int,int>>, greater<pair<int,int>>> pq;
 
-	for (int p_next = next_unvisted(-1); p_next < n; p_next = next_unvisted(p_next))
+	#pragma omp parallel for schedule(dynamic)
+	for (int p_next = 0; p_next < n; p_next++)
 	{
+		if (visited[p_next] != 0)
+			continue;
+		
 		copy_graph(g_p, g);
 		int c_temp = cost + reduce_node(g_p, p_prev, p_next);
 		if (c_temp < upper)
@@ -207,7 +211,11 @@ int main()
 {
 	load_data("microtest.tsp", n, graph);
 	//load_data("xqf131.tsp", n, graph);
+	
 	int cost;
+	double start, end;
+	
+	start = omp_get_wtime(); 
 	
 	#pragma omp parallel
 	{
@@ -217,11 +225,14 @@ int main()
 		}
 	}
 
+	end = omp_get_wtime(); 
+
 	cout << "cost: " << cost << endl;
 	cout << "path: ";
 	for (int i = 0; i < n; i++)
 		cout << path[i] + 1 << " ";
 	cout << endl;
+	cout << "time: " << end - start << endl;
 	
 	return 0;
 }
