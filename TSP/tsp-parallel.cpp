@@ -92,16 +92,6 @@ void set_col_inf(int **g, int j)
 		g[i][j] = INF;
 }
 
-int next_unvisted(int s)
-{
-	for (int j = s + 1; j < n; j++)
-	{
-		if (visited[j] == 0)
-			return j;
-	}
-	return n + 1;
-}
-
 int reduce_node(int **g, int p_prev, int p_next)
 {
 	int weight = g[p_prev][p_next];
@@ -121,17 +111,32 @@ int reduce_node(int **g, int p_prev, int p_next)
 
 int upper = INF;
 
-int tsp_recursive(int **g, int p_prev, int depth, int cost)
+double start_time, end_time;
+
+void print_path()
+{
+	cout << "{" << endl;
+	cout << "\t\"cost\": " << upper << ", " << endl;
+	cout << "\t\"path\": [ ";
+	for (int i = 0; i < n - 1; i++)
+		cout << path[i] + 1 << ", ";
+	cout << path[n-1] << " ]," << endl;
+	cout << "\t\"time\": " << omp_get_wtime() - start_time << endl;
+	cout << "}," << endl;
+}
+
+void tsp_recursive(int **g, int p_prev, int depth, int cost)
 {
 	if (depth == n)
 	{
 		upper = min(upper, cost);
-		return upper;
+		print_path();
+		return;
 	}
 
 	int **g_p = new_graph(g);
 	
-	priority_queue<pair<int, int>, vector<pair<int,int>>, greater<pair<int,int>>> pq;
+	priority_queue<pair<int, int>, vector<pair<int,int> >, greater<pair<int,int> > > pq;
 
 	#pragma omp parallel for schedule(dynamic)
 	for (int p_next = 0; p_next < n; p_next++)
@@ -163,20 +168,14 @@ int tsp_recursive(int **g, int p_prev, int depth, int cost)
 		copy_graph(g_p, g);
 		reduce_node(g_p, p_prev, p_next);
 
-		int c_rec = tsp_recursive(g_p, p_next, depth + 1, c_temp);
+		path[depth] = p_next;
 
-		if (c_rec != INF)
-		{
-			path[depth] = p_next;
-			c_ans = min(c_ans, c_rec);
-		}
+		tsp_recursive(g_p, p_next, depth + 1, c_temp);
 
 		visited[p_next] = false;
 	}
 
 	delete_graph(g_p);
-
-	return c_ans;
 }
 
 int tsp()
@@ -200,22 +199,21 @@ int tsp()
 	path[0] = p_start;
 	visited[p_start] = true;
 
-	int cost = tsp_recursive(g, p_start, 1, cost_initial);
+	tsp_recursive(g, p_start, 1, cost_initial);
 
 	delete_graph(g);
 
-	return cost;
+	return upper;
 }
 
 int main()
 {
-	load_data("microtest.tsp", n, graph);
-	//load_data("xqf131.tsp", n, graph);
+	//load_data("microtest.tsp", n, graph);
+	load_data("xqf131.tsp", n, graph);
 	
 	int cost;
-	double start, end;
 	
-	start = omp_get_wtime(); 
+	start_time = omp_get_wtime(); 
 	
 	#pragma omp parallel
 	{
@@ -225,14 +223,14 @@ int main()
 		}
 	}
 
-	end = omp_get_wtime(); 
-
+	end_time = omp_get_wtime(); 
+	/*
 	cout << "cost: " << cost << endl;
 	cout << "path: ";
 	for (int i = 0; i < n; i++)
 		cout << path[i] + 1 << " ";
 	cout << endl;
-	cout << "time: " << end - start << endl;
-	
+	cout << "time: " << end_time - start_time << endl;
+	*/
 	return 0;
 }
