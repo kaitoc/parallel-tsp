@@ -96,14 +96,6 @@ int next_unvisted(int s)
 	return n + 1;
 }
 
-bool is_all_visited()
-{
-	for (int i = 0; i < n; i++)
-		if (visited[i] == 0)
-			return false;
-	return true;
-}
-
 int reduce_node(int **g, int p_prev, int p_next)
 {
 	int weight = g[p_prev][p_next];
@@ -121,120 +113,97 @@ int reduce_node(int **g, int p_prev, int p_next)
 	return cost + weight;
 }
 
-int tsp_recursive(int **g, int cost_upper, int p_start, int p_prev, int depth, int cost)
+int upper = INF;
+
+int tsp_recursive(int **g, int p_prev, int depth, int cost)
 {
-	if (is_all_visited())
-		return cost;
+	if (depth == n)
+	{
+		upper = min(upper, cost);
+		return upper;
+	}
 
 	int **g_p = new_graph(g);
-
-	int cost_temp;
-	vector<pair<int, int>> v;
+	
+	priority_queue<pair<int, int>, vector<pair<int,int>>, greater<pair<int,int>>> pq;
 
 	for (int p_next = next_unvisted(-1); p_next < n; p_next = next_unvisted(p_next))
 	{
 		copy_graph(g_p, g);
-		cost_temp = cost + reduce_node(g_p, p_prev, p_next);
-		if (cost_temp < cost_upper)
-			v.push_back(make_pair(cost_temp, p_next));
+		int c_temp = cost + reduce_node(g_p, p_prev, p_next);
+		if (c_temp < upper)
+			pq.push(make_pair(c_temp, p_next));
 	}
 
-	sort(v.begin(), v.end());
+	int c_ans = INF;
 
-	for (int i = 0; i < v.size(); i++)
+	while (!pq.empty())
 	{
-		visited[v[i].second] = true;
+		pair<int, int> p = pq.top();
+		pq.pop();
+
+		int p_next = p.second;
+		int c_temp = p.first;
+
+		if (c_temp > upper)
+			break;
+		
+		cout << "depth: " << depth << " p_prev: " << p_prev << " p_next: " << p_next << " cost: " << c_temp << " upper: " << upper << endl;
+		
+		visited[p_next] = true;
+
 		copy_graph(g_p, g);
-		reduce_node(g_p, p_prev, v[i].second);
-		cost_temp = tsp_recursive(g_p, cost_upper, p_start, v[i].second, depth + 1, v[i].first);
-		if (cost_temp > 0 && cost_temp < cost_upper)
+		reduce_node(g_p, p_prev, p_next);
+
+		int c_rec = tsp_recursive(g_p, p_next, depth + 1, c_temp);
+
+		if (c_rec != INF)
 		{
-			path[depth] = v[i].second;
-			delete_graph(g_p);
-			return cost_temp;
+			path[depth] = p_next;
+			c_ans = min(c_ans, c_rec);
 		}
-		visited[v[i].second] = false;
+
+		visited[p_next] = false;
 	}
 
 	delete_graph(g_p);
-	return -1;
+
+	return c_ans;
 }
 
 int tsp()
 {
 	int **g = new_graph(graph);
-	int **g_temp = new_graph(g);
-	int **g_min = new_graph(g);
+
+	int p_start = 0;
+	int cost_initial = 0;
 
 	path = new int[n];
 	visited = new int[n];
 
-	int cost, cost_initial = 0, cost_upper = INF, cost_upper_prev;
-	int p_start = 0;
+	fill_n(path, n, -1);
+	fill_n(visited, n, 0);
 
 	for (int i = 0; i < n; i++)
 		cost_initial += reduce_row(g, i);
 	for (int j = 0; j < n; j++)
 		cost_initial += reduce_col(g, j);
 	
-	int **g_bkp = new_graph(g);
-
-	cost = cost_initial;
-	fill_n(path, n, -1);
-	fill_n(visited, n, 0);
 	path[0] = p_start;
 	visited[p_start] = true;
 
-	for (int pos = 1; pos < n; pos++)
-	{
-		int p_min, p_curr = path[pos - 1];
-		int cost_min = INF;
-		for (int p_next = next_unvisted(-1); p_next < n; p_next = next_unvisted(p_next))
-		{
-			copy_graph(g_temp, g);
-			int cost_temp = cost + reduce_node(g_temp, p_curr, p_next);
-			if (cost_temp < cost_min)
-			{
-				cost_min = cost_temp;
-				p_min = p_next;
-				copy_graph(g_min, g_temp);
-			}
-		}
-		cost = cost_min;
-		path[pos] = p_min;
-		visited[p_min] = true;
-		copy_graph(g, g_min);
-	}
+	int cost = tsp_recursive(g, p_start, 1, cost_initial);
 
-	do
-	{
-		cost_upper = cost;
-		cost_upper_prev = cost_upper;
-
-		cost = cost_initial;
-		fill_n(visited, n, 0);
-		path[0] = p_start;
-		visited[p_start] = true;
-
-		cost = tsp_recursive(g_bkp, cost_upper, p_start, p_start, 1, cost);
-
-		if (cost > 0)
-			cost_upper = cost;
-
-	} while (cost_upper < cost_upper_prev);
-
-	delete_graph(g_bkp);
-	delete_graph(g_min);
-	delete_graph(g_temp);
 	delete_graph(g);
 
-	return cost_upper;
+	return cost;
 }
 
 int main()
 {
 	load_data("microtest.tsp", n, graph);
 	//load_data("xqf131.tsp", n, graph);
+	n = 20;
 	int cost = tsp();
 	cout << "cost: " << cost << endl;
 	cout << "path: ";
