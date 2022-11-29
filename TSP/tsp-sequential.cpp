@@ -203,7 +203,6 @@ int main()
 {
 	load_data("microtest.tsp", n, graph);
 	//load_data("xqf131.tsp", n, graph);
-	n = 20;
 	int cost = tsp();
 	cout << "cost: " << cost << endl;
 	cout << "path: ";
