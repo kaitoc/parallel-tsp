@@ -11,7 +11,8 @@ using namespace std;
 
 void load_data(string filename, int& n, int**& graph)
 {
-    ifstream file {"test_data/" + filename};
+    ifstream file;
+    file.open("test_data/" + filename);
     
     file >> n;
 
@@ -19,7 +20,7 @@ void load_data(string filename, int& n, int**& graph)
     for (int i = 0; i < n; i++)
         graph[i] = new int[n];
 
-    vector<pair<int, int>> pos;
+    vector<pair<int, int> > pos;
 
     int c, x, y;
 
